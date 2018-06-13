@@ -33,7 +33,7 @@ public class CakeController {
     @RequestMapping(value = "/", method = RequestMethod.POST)
     public @ResponseBody CompletableFuture<Boolean> saveCake(@RequestBody CakeDto cakeDto) {
         return CompletableFuture.supplyAsync(() -> {
-            cakeService.saveItem(cakeDto);
+            cakeService.saveItem(cakeDto).join();
             return true;
         });
     }
@@ -41,7 +41,7 @@ public class CakeController {
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     public @ResponseBody CompletableFuture<Boolean> removeCake(@PathVariable Long id) {
         return CompletableFuture.supplyAsync(() -> {
-            cakeService.removeItem(id);
+            cakeService.removeItem(id).join();
             return true;
         });
     }

@@ -19,7 +19,7 @@ public class CommonExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public ResponseEntity<ErrorDetails> handleException(EntityNotFoundException e, WebRequest r) {
-        ErrorDetails details = new ErrorDetails(new Date(), e.getMessage(), r.getDescription(false));
+        ErrorDetails details = new ErrorDetails(new Date(), e.getMessage(), r.getDescription(true));
         return new ResponseEntity<>(details, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

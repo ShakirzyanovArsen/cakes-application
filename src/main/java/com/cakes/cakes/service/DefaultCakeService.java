@@ -1,9 +1,7 @@
 package com.cakes.cakes.service;
 
-import com.cakes.cakes.domain.Cake;
-import com.cakes.cakes.domain.CakeDto;
-import com.cakes.cakes.domain.CakeFilter;
-import com.cakes.cakes.domain.CakeView;
+import com.cakes.cakes.domain.*;
+import com.cakes.cakes.exception.CakeNotStaleableException;
 import com.cakes.cakes.exception.EntityNotFoundException;
 import com.cakes.cakes.repository.CakeRepository;
 import org.modelmapper.ModelMapper;
@@ -15,7 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,6 +29,7 @@ public class DefaultCakeService implements CakeService {
 
     @Override
     @Async
+    @Transactional
     public CompletableFuture<CakeDto> getItem(Long id) {
         CompletableFuture<Cake> cakeFuture = cakeRepository.getItem(id);
         return cakeFuture.thenApply(cake -> {
@@ -64,6 +62,13 @@ public class DefaultCakeService implements CakeService {
     public CompletableFuture<Void> saveItem(CakeDto item) {
         Cake cake = modelMapper.map(item, Cake.class);
         if(cake.getId() != null) {
+            Cake cakeInDb = cakeRepository.getItem(cake.getId()).join();
+            if(cakeInDb == null) {
+                throw new EntityNotFoundException(Cake.class);
+            }
+            if(cakeInDb.getStatus() != StatusType.stale && cake.getStatus() == StatusType.stale) {
+                throw new CakeNotStaleableException();
+            }
             return cakeRepository.updateItem(cake);
         } else {
             return cakeRepository.addItem(cake);
@@ -71,7 +76,7 @@ public class DefaultCakeService implements CakeService {
     }
 
     @Override
-//    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public CompletableFuture<Void> removeItem(Long id) {
         CompletableFuture<Cake> cakeFuture = cakeRepository.getItem(id);
         return cakeFuture.thenApply(cake -> {

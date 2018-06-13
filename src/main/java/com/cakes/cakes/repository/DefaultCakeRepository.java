@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @Repository
-@Transactional
 public class DefaultCakeRepository implements CakeRepository {
 
 
