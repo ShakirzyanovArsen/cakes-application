@@ -1,8 +1,12 @@
 package com.cakes.cakes.domain;
 
+import javax.validation.constraints.NotNull;
+
 public class CakeDto {
     private Long id;
+    @NotNull
     private String name;
+    @NotNull
     private StatusType status;
 
     public CakeDto() {

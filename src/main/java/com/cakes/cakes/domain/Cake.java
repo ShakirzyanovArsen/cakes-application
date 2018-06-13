@@ -1,8 +1,20 @@
 package com.cakes.cakes.domain;
 
+import javax.persistence.*;
+import java.util.Objects;
+
+
+@Entity
+@Table(name = "cake")
 public class Cake {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @Column(name = "name")
     private String name;
+
+    @Column(name = "status")
     private StatusType status;
 
     public Cake() {
@@ -30,5 +42,20 @@ public class Cake {
 
     public void setStatus(StatusType status) {
         this.status = status;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Cake cake = (Cake) o;
+        return Objects.equals(id, cake.id) &&
+                Objects.equals(name, cake.name) &&
+                status == cake.status;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, status);
     }
 }

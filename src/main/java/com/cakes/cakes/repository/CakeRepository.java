@@ -2,10 +2,12 @@ package com.cakes.cakes.repository;
 
 import com.cakes.cakes.domain.Cake;
 import com.cakes.cakes.domain.CakeFilter;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+
 
 @Repository
 public interface CakeRepository {
