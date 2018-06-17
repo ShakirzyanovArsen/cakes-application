@@ -2,6 +2,7 @@ package com.cakes.cakes.repository;
 
 import com.cakes.cakes.domain.Cake;
 import com.cakes.cakes.domain.CakeFilter;
+import com.cakes.cakes.domain.StatusType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -11,10 +12,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.persistence.*;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -40,14 +39,18 @@ public class DefaultCakeRepository implements CakeRepository {
             CriteriaQuery<Cake> query = builder.createQuery(Cake.class);
             Root<Cake> root = query.from(Cake.class);
             query = query.select(root);
+            final List<Predicate> predicates = new ArrayList<>();
             if (filter.getText() != null) {
-                query = query
-                        .where(builder.like(root.get("name"), "%" + filter.getText() + "%"));
+                Predicate predicate = builder.like(root.get("name"), "%" + filter.getText() + "%");
+                predicates.add(predicate);
             }
             if (filter.getStatuses().length > 0) {
                 Path<String> exp = root.get("status");
-                query = query.where(exp.in(filter.getStatuses()));
+                Predicate predicate = exp.in(filter.getStatuses());
+                predicates.add(predicate);
             }
+            Predicate and = builder.and(predicates.toArray(new Predicate[predicates.size()]));
+            query = query.where(and);
             return entityManager.createQuery(query)
                     .setMaxResults(filter.getLimit())
                     .setFirstResult((filter.getPage() - 1) * filter.getLimit())
@@ -68,7 +71,6 @@ public class DefaultCakeRepository implements CakeRepository {
     @Override
     public CompletableFuture<Void> updateItem(Cake item) {
         entityManager.merge(item);
-        entityManager.flush();
         return CompletableFuture.completedFuture(null);
     }
 
@@ -77,7 +79,6 @@ public class DefaultCakeRepository implements CakeRepository {
     @Override
     public CompletableFuture<Void> removeItem(Cake item) {
         entityManager.remove(item);
-        entityManager.flush();
         return CompletableFuture.completedFuture(null);
     }
 
@@ -88,16 +89,20 @@ public class DefaultCakeRepository implements CakeRepository {
         return CompletableFuture.supplyAsync(() -> {
             CriteriaBuilder builder = entityManager.getCriteriaBuilder();
             CriteriaQuery<Long> query = builder.createQuery(Long.class);
-            query = query.select(builder.count(query.from(Cake.class)));
             Root<Cake> root = query.from(Cake.class);
+            query.select(builder.count(root));
+            final List<Predicate> predicates = new ArrayList<>();
             if (filter.getText() != null) {
-                query = query
-                        .where(builder.like(root.get("name"), "%" + filter.getText() + "%"));
+                Predicate predicate = builder.like(root.get("name"), "%" + filter.getText() + "%");
+                predicates.add(predicate);
             }
             if (filter.getStatuses().length > 0) {
                 Path<String> exp = root.get("status");
-                query = query.where(exp.in(filter.getStatuses()));
+                Predicate predicate = exp.in(filter.getStatuses());
+                predicates.add(predicate);
             }
+            Predicate and = builder.and(predicates.toArray(new Predicate[predicates.size()]));
+            query = query.where(and);
             return entityManager.createQuery(query).getSingleResult();
         });
     }

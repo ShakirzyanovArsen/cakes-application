@@ -1,8 +1,11 @@
 package com.cakes.cakes.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import javax.validation.constraints.NotNull;
 
 public class CakeDto {
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long id;
     @NotNull
     private String name;

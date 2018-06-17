@@ -1,10 +1,9 @@
 package com.cakes.cakes.utils;
 
-import com.cakes.cakes.domain.Cake;
-import com.cakes.cakes.domain.CakeDto;
-import com.cakes.cakes.domain.CakeFilter;
-import com.cakes.cakes.domain.StatusType;
+import com.cakes.cakes.domain.*;
 import org.springframework.lang.Nullable;
+
+import java.util.List;
 
 public class ObjectUtils {
     public static Cake createCake(@Nullable Long id, String name, StatusType status) {
@@ -24,11 +23,26 @@ public class ObjectUtils {
         return cakeFilter;
     }
 
+    public static CakeView createCakeView(List<CakeDto> cakes, Long total) {
+        CakeView cakeView = new CakeView();
+        cakeView.setItems(cakes);
+        cakeView.setTotal(total);
+        return cakeView;
+    }
+
     public static CakeDto createDtoByCake(Cake cake) {
         CakeDto cakeDto = new CakeDto();
         cakeDto.setId(cake.getId());
         cakeDto.setName(cake.getName());
         cakeDto.setStatus(cake.getStatus());
+        return cakeDto;
+    }
+
+    public static CakeDto createCakeDto(Long id, String name, StatusType status) {
+        CakeDto cakeDto = new CakeDto();
+        cakeDto.setId(id);
+        cakeDto.setName(name);
+        cakeDto.setStatus(status);
         return cakeDto;
     }
 }

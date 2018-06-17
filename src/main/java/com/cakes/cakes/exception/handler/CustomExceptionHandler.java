@@ -3,6 +3,7 @@ package com.cakes.cakes.exception.handler;
 import com.cakes.cakes.exception.CakeNotStaleableException;
 import com.cakes.cakes.exception.EntityNotFoundException;
 import com.cakes.cakes.exception.ErrorDetails;
+import com.cakes.cakes.exception.InvalidJsonException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,13 @@ public class CustomExceptionHandler {
     @ExceptionHandler(CakeNotStaleableException.class)
     @ResponseBody
     public ResponseEntity<ErrorDetails> handleCakeNotStaleableException(CakeNotStaleableException e, WebRequest r) {
+        ErrorDetails details = new ErrorDetails(new Date(), e.getMessage(), r.getDescription(true));
+        return new ResponseEntity<>(details, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidJsonException.class)
+    @ResponseBody
+    public ResponseEntity<ErrorDetails> handleInvalidJsonException(InvalidJsonException e, WebRequest r) {
         ErrorDetails details = new ErrorDetails(new Date(), e.getMessage(), r.getDescription(true));
         return new ResponseEntity<>(details, HttpStatus.BAD_REQUEST);
     }

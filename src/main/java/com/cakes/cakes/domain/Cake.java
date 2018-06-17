@@ -15,6 +15,7 @@ public class Cake {
     private String name;
 
     @Column(name = "status")
+    @Enumerated(EnumType.STRING)
     private StatusType status;
 
     public Cake() {
